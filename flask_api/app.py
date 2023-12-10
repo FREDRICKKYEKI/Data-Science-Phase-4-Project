@@ -32,22 +32,27 @@ def index():
     """
     Return the status of the application
     """
-    movies_df = final_recommender()
-    movies = list(movies_df["title"])
-    return render_template('index.html', title="", movies=movies, home=True)
-
+    try:
+        movies_df = final_recommender()
+        movies = list(movies_df["title"])
+        return render_template('index.html', title="", movies=movies, home=True)
+    except:
+        return render_template('index.html', title="", movies=[], home=True)
 @app.route("/movies_like", methods=["POST"], strict_slashes=False)
 def movie_recomm():
     """
     Return the status of the application
     """
-    form_data = request.form
-    title = form_data['movie']
+    try:
+        form_data = request.form
+        title = form_data['movie']
 
-    movies_df = knn_get_rec(title)
-    movies = list(movies_df["title"])
+        movies_df = knn_get_rec(title)
+        movies = list(movies_df["title"])
 
-    return render_template("index.html", title=title, movies=movies, home=False)
+        return render_template("index.html", title=title, movies=movies, home=False)
+    except:
+        return render_template("index.html", title=title, movies=[], home=False)
 
 
 if __name__ == "__main__":
