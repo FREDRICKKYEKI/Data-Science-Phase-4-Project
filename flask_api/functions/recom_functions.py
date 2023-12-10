@@ -19,8 +19,12 @@ data = {"movies":None, "links": None, "ratings": None, "tags": None}
 for key, _ in data.items():
     data[key] = pd.read_csv(f"data/ml-latest-small/{key}.csv")
 
-knnrc_df = pd.read_pickle("flask_api/functions/pickles/knn_pv")
-model_knn = pkl.load(open("flask_api/functions/pickles/recom_model", "rb"))
+knnrc_df = pd.read_pickle("functions/pickles/knn_pv")
+
+with open("functions/pickles/recom_model", "rb") as f:
+    model_knn = pkl.load(f)
+
+# model_knn = pkl.load(open("functions/pickles/recom_model", "rb"))
 
 new_indices = {value: index for index, value in enumerate(knnrc_df.index)}
 
