@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movies Like X</title>
+  </head>
+  <body>
+    <h1>Movies Like X</h1>
+    <p>Search for similar movies</p>
+    <form action="/movies_like" method="POST">
+      <label for="movie">Movie Title</label>
+      <input
+        type="text"
+        value="{{title}}"
+        placeholder="X"
+        name="movie"
+        id="movie"
+      />
+      <input type="submit" value="Search" />
+    </form>
+
+    {% if movies %} {% if home %}
+    <p>Here are some movies you might like:</p>
+    {% else %}
+    <h2>Results</h2>
+    {% endif %}
+    <ul>
+      {% for movie in movies %}
+      <li>{{ movie }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No results found.</p>
+    {% endif %}
+  </body>
+</html>
