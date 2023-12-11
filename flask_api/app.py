@@ -2,7 +2,7 @@
 """
 Returns the status of our application
 """
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, redirect
 from flask_cors import CORS
 from os import getenv
 import pandas as pd
@@ -26,6 +26,12 @@ def status():
     """
     return jsonify({"status": "OK"})
 
+@app.get("/movies_like")
+def redirect_home():
+    """
+    Return the status of the application
+    """
+    return redirect("/")
 
 @app.get("/")
 def index():

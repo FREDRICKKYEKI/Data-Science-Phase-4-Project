@@ -15,6 +15,22 @@
       .card-body::-webkit-scrollbar {
         display: none;
       }
+
+      @media (max-width: 600px) {
+        ul {
+          padding: 0;
+        }
+        .form-inline {
+          flex-direction: column;
+        }
+        form .btn {
+          margin-top: 1rem;
+          width: 100%;
+        }
+        .card-body {
+          overflow-y: hidden;
+        }
+      }
     </style>
   </head>
   <body class="mx-5 mt-3">
@@ -64,7 +80,9 @@
             });
           });
         {% endif %}
-
+          document.querySelector('.copyright').innerHTML = `&copy; ${
+            new Date().getFullYear()
+          } All rights reserved`;
           };
     </script>
     <h1>
@@ -76,7 +94,7 @@
       similar, captivating movies that await your discovery.
     </p>
     <form class="form-inline" action="/movies_like" method="POST">
-      <label for="movie">Movie Title</label>
+      <label for="movie">Search Movie Title:</label>
       <input
         class="form-control mx-2"
         type="text"
@@ -100,11 +118,11 @@
         <li class="m-3" style="list-style: none">
           <article style="max-width: 250px; height: 400px" class="card">
             <img class="movie__img card-img-top" />
-            <div style="" class="movie__title card-body">
+            <div class="movie__title card-body">
               <h5 class="card-title"></h5>
               <p><strong>Genres: </strong><span class="genre"></span></p>
               <strong>Description:</strong>
-              <p style="" class="card-text"></p>
+              <p class="card-text"></p>
             </div>
           </article>
         </li>
@@ -120,30 +138,50 @@
         left: 0;
         right: 0;
         bottom: 0;
-        padding: 1rem;
+        padding: 0.5rem;
         backdrop-filter: blur(10px);
-        background-color: #00000060;
+        background-color: #ffffff93;
       "
     >
       <p class="text-center">
-        Made with ❤️ by
+        Made with ❤️ by <br />
         <a
+          class="mt-2"
           style="text-decoration: none"
           href="https://github.com/FREDRICKKYEKI/Data-Science-Phase-4-Project"
         >
           <img
-            style="width: 30px; object-fit: contain; aspect-ratio: 1/1"
+            style="
+              border-radius: 50%;
+              border: 1px solid black;
+              width: 30px;
+              object-fit: contain;
+              aspect-ratio: 1/1;
+            "
             src="https://avatars.githubusercontent.com/u/101971767?s=64&v=4"
           />
           <img
-            style="width: 30px; object-fit: contain; aspect-ratio: 1/1"
+            style="
+              border-radius: 50%;
+              border: 1px solid black;
+              width: 30px;
+              object-fit: contain;
+              aspect-ratio: 1/1;
+            "
             src="https://avatars.githubusercontent.com/u/62002931?s=64&v=4"
           />
           <img
-            style="width: 30px; object-fit: contain; aspect-ratio: 1/1"
+            style="
+              border-radius: 50%;
+              border: 1px solid black;
+              width: 30px;
+              object-fit: contain;
+              aspect-ratio: 1/1;
+            "
             src="https://avatars.githubusercontent.com/u/133043967?s=64&v=4"
-          />
-        </a>
+          /> </a
+        ><br />
+        <span class="copyright"></span>
       </p>
     </footer>
   </body>
