@@ -24,8 +24,7 @@ knnrc_df = pd.read_pickle("functions/pickles/knn_pv")
 with open("functions/pickles/recom_model", "rb") as f:
     model_knn = pkl.load(f)
 
-with open("functions/pickles/sig", "rb") as f:
-    sig = pkl.load(f)
+
 
 new_indices = {value: index for index, value in enumerate(knnrc_df.index)}
 
@@ -60,9 +59,11 @@ def get_title(text, df=df):
 
     return title, df.loc[mask].head(1)["genres"].values[0]
 
-def give_rec(title, sig=sig, rec=10):
+def give_rec(title, rec=10):
     """Get the index corresponding to title content based"""
     try:
+        with open("functions/pickles/sig", "rb") as f:
+            sig = pkl.load(f)
         # get title
         title, genres = get_title(title, merged_movies_links)
 
