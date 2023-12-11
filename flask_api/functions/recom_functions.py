@@ -5,7 +5,7 @@ import pandas as pd
 import pickle as pkl
 import random
 
-random.seed(555)
+# random.seed(555)
 
 
 # Datasets
@@ -23,8 +23,6 @@ knnrc_df = pd.read_pickle("functions/pickles/knn_pv")
 
 with open("functions/pickles/recom_model", "rb") as f:
     model_knn = pkl.load(f)
-
-# model_knn = pkl.load(open("functions/pickles/recom_model", "rb"))
 
 new_indices = {value: index for index, value in enumerate(knnrc_df.index)}
 
@@ -78,7 +76,7 @@ def knn_get_rec(title, rec=10, verbose=True):
             if i == 0:
                 continue
             rec_movie = knnrc_df.index[knn_indices.flatten()[i]]
-            movies_df = data['movies']
+            movies_df = merged_movies_links
             mask = movies_df['title'].str.contains(rec_movie, case=False, regex=False)
 
             # fill in return dataframe
@@ -89,7 +87,7 @@ def knn_get_rec(title, rec=10, verbose=True):
 
         ret_df["knn_distance"] = dists
 
-        return ret_df
+        return ret_df.sample(frac=1)
 
     except Exception as _:
         return "⚠ Oops! Something went wrong!"

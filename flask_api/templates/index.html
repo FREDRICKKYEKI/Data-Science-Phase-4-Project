@@ -4,34 +4,147 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Movies Like X</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <style>
+      .card-body {
+        overflow-y: scroll;
+      }
+      .card-body::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
   </head>
-  <body>
-    <h1>Movies Like X</h1>
-    <p>Search for similar movies</p>
-    <form action="/movies_like" method="POST">
+  <body class="mx-5 mt-3">
+    <script defer>
+      window.onload = function () {
+        {% if movie_json and api_key %}
+        window.movies = {{ movie_json | tojson | safe}};
+        const movies_json = JSON.parse(window.movies);
+        const api_key = "{{ api_key }}"; // Wrap the variable in double quotes
+
+        // Specify the size you want (options: 'w92', 'w154', 'w185', 'w342', 'w500', 'w780', 'original')
+        const base_image_url = 'https://image.tmdb.org/t/p/w500';
+
+        const fetchMovieDetails = (movie) => {
+          const url = `https://api.themoviedb.org/3/movie/${movie.tmdbId}?language=en-US`;
+          const options = {
+            method: 'GET',
+            headers: {
+              accept: 'application/json',
+              Authorization: `Bearer ${api_key}`
+            }
+          };
+
+          return fetch(url, options)
+            .then((res) => res.json())
+            .then((json) => {
+              movie.url = `${base_image_url}${json.backdrop_path}`;
+              movie.overview = json.overview;
+              movie.homepage = json.homepage;
+            })
+            .catch((err) => console.error('error:' + err));
+        };
+
+        const fetchPromises = movies_json.map((movie) => fetchMovieDetails(movie));
+
+        Promise.all(fetchPromises)
+          .then(() => {
+            const movie = document.getElementById('movie');
+            movie.focus();
+            window.movies_json = movies_json;
+
+            document.querySelectorAll('.movie__img').forEach((img, i) => {
+              img.src = movies_json[i].url;
+              document.querySelectorAll('.card-title')[i].innerHTML = movies_json[i].title;
+              document.querySelectorAll('.card-text')[i].innerHTML = movies_json[i].overview;
+              document.querySelectorAll('.genre')[i].innerHTML = movies_json[i].genres.split("|").join(", ");
+            });
+          });
+        {% endif %}
+
+          };
+    </script>
+    <h1>
+      <a href="/">Movies Like X</a>
+    </h1>
+    <p>
+      Embark on a journey of movie exploration using our machine learning model.
+      Simply search for your favorite film, and unveil a curated list of
+      similar, captivating movies that await your discovery.
+    </p>
+    <form class="form-inline" action="/movies_like" method="POST">
       <label for="movie">Movie Title</label>
       <input
+        class="form-control mx-2"
         type="text"
         value="{{title}}"
         placeholder="X"
         name="movie"
         id="movie"
       />
-      <input type="submit" value="Search" />
+      <input class="btn btn-primary" type="submit" value="Search" />
     </form>
-
-    {% if movies %} {% if home %}
-    <p>Here are some movies you might like:</p>
-    {% else %}
-    <h2>Results</h2>
-    {% endif %}
-    <ul>
-      {% for movie in movies %}
-      <li>{{ movie }}</li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>⚠ No results found.</p>
-    {% endif %}
+    <div class="">
+      {% if movie_json %} {% if home %}
+      <p>Here are some movies you might like:</p>
+      {% else %}
+      <h2 class="mt-2">Results</h2>
+      {% endif %} {% if title %}
+      <i style="color: gray">showing results for <b>{{title}}</b></i>
+      {% endif %}
+      <ul style="margin-bottom: 6rem" class="d-flex flex-wrap">
+        {% for movie in movies %}
+        <li class="m-3" style="list-style: none">
+          <article style="max-width: 250px; height: 400px" class="card">
+            <img class="movie__img card-img-top" />
+            <div style="" class="movie__title card-body">
+              <h5 class="card-title"></h5>
+              <p><strong>Genres: </strong><span class="genre"></span></p>
+              <strong>Description:</strong>
+              <p style="" class="card-text"></p>
+            </div>
+          </article>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>⚠ No results found.</p>
+      {% endif %}
+    </div>
+    <footer
+      style="
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 1rem;
+        backdrop-filter: blur(10px);
+        background-color: #00000060;
+      "
+    >
+      <p class="text-center">
+        Made with ❤️ by
+        <a
+          style="text-decoration: none"
+          href="https://github.com/FREDRICKKYEKI/Data-Science-Phase-4-Project"
+        >
+          <img
+            style="width: 30px; object-fit: contain; aspect-ratio: 1/1"
+            src="https://avatars.githubusercontent.com/u/101971767?s=64&v=4"
+          />
+          <img
+            style="width: 30px; object-fit: contain; aspect-ratio: 1/1"
+            src="https://avatars.githubusercontent.com/u/62002931?s=64&v=4"
+          />
+          <img
+            style="width: 30px; object-fit: contain; aspect-ratio: 1/1"
+            src="https://avatars.githubusercontent.com/u/133043967?s=64&v=4"
+          />
+        </a>
+      </p>
+    </footer>
   </body>
 </html>
