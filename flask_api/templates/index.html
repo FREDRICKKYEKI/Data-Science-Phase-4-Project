@@ -74,7 +74,7 @@
 
             document.querySelectorAll('.movie__img').forEach((img, i) => {
               img.src = movies_json[i].url;
-              document.querySelectorAll('.card-title')[i].innerHTML = movies_json[i].title;
+              document.querySelectorAll('.card-title')[i].innerHTML = `<a href="/movies_like?movie=${movies_json[i].title}">${movies_json[i].title}</a>`;
               document.querySelectorAll('.card-text')[i].innerHTML = movies_json[i].overview;
               document.querySelectorAll('.genre')[i].innerHTML = movies_json[i].genres.split("|").join(", ");
             });

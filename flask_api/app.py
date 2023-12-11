@@ -26,12 +26,6 @@ def status():
     """
     return jsonify({"status": "OK"})
 
-@app.get("/movies_like")
-def redirect_home():
-    """
-    Return the status of the application
-    """
-    return redirect("/")
 
 @app.get("/")
 def index():
@@ -48,6 +42,33 @@ def index():
     except:
         return render_template('index.html', title="", movies=[], home=True)
 
+@app.get("/movies_like")
+def redirect_home():
+    """
+    Return the status of the application
+    """
+    try:
+        title = request.args.get("movie")
+        print(title)
+
+        if not title:
+            return redirect("/"), 302
+
+        movies_df: pd.DataFrame = knn_get_rec(title, rec=20)
+
+        title, _ = get_title(title)
+
+        movies = list(movies_df["title"])
+
+        return render_template("index.html", title=title if title else "",
+                               movies=movies,
+                               home=False, api_key=app.config["API_ACCESS_TOK"],
+                               movie_json=movies_df.to_json(orient="records"))
+    except:
+        return render_template("index.html", title=title, movies=[], home=False)
+
+
+
 @app.route("/movies_like", methods=["POST"], strict_slashes=False)
 def movie_recomm():
     """
@@ -57,11 +78,10 @@ def movie_recomm():
         form_data = request.form
         title = form_data['movie']
 
-        movies_df: pd.DataFrame = knn_get_rec(title, rec=20)
+        movies_df = knn_get_rec(title, rec=20)
+        movies = list(movies_df["title"])
 
         title, _ = get_title(title)
-
-        movies = list(movies_df["title"])
 
         return render_template("index.html", title=title if title else "",
                                movies=movies,

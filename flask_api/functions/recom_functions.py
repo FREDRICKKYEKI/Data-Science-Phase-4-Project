@@ -24,12 +24,19 @@ knnrc_df = pd.read_pickle("functions/pickles/knn_pv")
 with open("functions/pickles/recom_model", "rb") as f:
     model_knn = pkl.load(f)
 
+with open("functions/pickles/sig", "rb") as f:
+    sig = pkl.load(f)
+
 new_indices = {value: index for index, value in enumerate(knnrc_df.index)}
 
+
 movies_df = data["movies"]
+
 links_df = data["links"]
 
 merged_movies_links = movies_df.join(links_df.set_index("movieId"), on="movieId", how="inner")
+
+indices = pd.Series(merged_movies_links.index, index=merged_movies_links['title']).drop_duplicates()
 
 # Left outer join with ratings_df and specify suffixes
 merged_data_ratings = merged_movies_links.join(data["ratings"].set_index("movieId"), on="movieId", how="left", lsuffix='_movies_links', rsuffix='_ratings')
@@ -53,6 +60,37 @@ def get_title(text, df=df):
 
     return title, df.loc[mask].head(1)["genres"].values[0]
 
+def give_rec(title, sig=sig, rec=10):
+    """Get the index corresponding to title content based"""
+    try:
+        # get title
+        title, genres = get_title(title, merged_movies_links)
+
+        # print the movie title matching the text
+        if title:
+            print(f"[CONTENT-BASED] Recommendation for {title}")
+            print("Genres: ", genres)
+
+        idx = indices[title]
+
+        # Get the pairwsie similarity scores
+        sig_scores = list(enumerate(sig[idx]))
+
+        # Sort the movies
+        sig_scores = sorted(sig_scores, key=lambda x: x[1], reverse=True)
+
+        sig_scores = sig_scores[1:rec]
+
+        # Movie indices
+        movie_indices = [i[0] for i in sig_scores]
+
+        # Top 10 most similar movies
+        return merged_movies_links.iloc[movie_indices].drop_duplicates()
+    except Exception as _:
+        print(_)
+        return "⚠ Oops! Something went wrong!"
+
+
 def knn_get_rec(title, rec=10, verbose=True):
     """Get recommendations for a movie using KNN
     """
@@ -66,10 +104,10 @@ def knn_get_rec(title, rec=10, verbose=True):
         idx = new_indices[title]
 
         # compute the knn distance and index
-        distances, knn_indices = model_knn.kneighbors(knnrc_df.iloc[idx,:].values.reshape(1, -1), n_neighbors = rec + 1)
+        distances, knn_indices = model_knn.kneighbors(knnrc_df.iloc[idx,:].values.reshape(1, -1), n_neighbors = rec)
 
         if title and verbose:
-            print(f'Recommendations for {title}:')
+            print(f'[KNN] Recommendations for {title}:')
             print(f"Genres: {', '.join(genres.split('|'))}")
 
         for i in range(0, len(distances.flatten())):
@@ -87,10 +125,14 @@ def knn_get_rec(title, rec=10, verbose=True):
 
         ret_df["knn_distance"] = dists
 
+        if len( list(ret_df["title"])) < 1:
+            return give_rec(title, rec=rec)
+
         return ret_df.sample(frac=1)
 
     except Exception as _:
-        return "⚠ Oops! Something went wrong!"
+        print("⚠ Oops! Something went wrong!", _)
+        return  give_rec(title, rec=rec)
 
 
 def unpersonalized_recomm(count=10):
@@ -106,7 +148,7 @@ def unpersonalized_recomm(count=10):
         recomms = pd.concat([recomms, top_5])
 
     # return shuffled
-    print("Unpersonalized recommendation:")
+    print("[UNPERSONALIZED]")
     return recomms.sample(frac=1).drop_duplicates().head(count)
 
 def top_ten_highly_rated(uid, rec=10):
@@ -159,6 +201,8 @@ def final_recommender(uid=None, rec=10):
             ret_df = ret_df.drop_duplicates()
 
         print(f"Recommendation for user id: {uid}")
+
+
         return ret_df
 
     except Exception as _:
