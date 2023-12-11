@@ -21,12 +21,6 @@
 
 ---
 
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
 ## Table of Contents:
 
@@ -189,4 +183,3 @@ I wish to acknowledge https://github.com/krishnaik06 for the guidance and suppor
 ## License :page_with_curl:
 
 This project is licensed under the MIT License - see the [LICENSE](/LICENSE) file for details.
-[![MIT License][license-shield]][license-url]
