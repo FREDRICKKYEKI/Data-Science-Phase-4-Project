@@ -30,8 +30,7 @@ with open("functions/pickles/recom_model", "rb") as f:
 
 new_indices = {value: index for index, value in enumerate(knnrc_df.index)}
 
-with open("functions/pickles/sig", "rb") as f:
-    sig = pkl.load(f)
+
 
 movies_df = data["movies"]
 
@@ -67,7 +66,8 @@ def give_rec(title, rec=10):
     """Get the index corresponding to title content based"""
     try:
         start = time.time()
-
+        with open("functions/pickles/sig", "rb") as f:
+            sig = pkl.load(f)
         # get title
         title, genres = get_title(title, merged_movies_links)
 
@@ -108,6 +108,10 @@ def knn_get_rec(title, rec=10, verbose=True):
         start = time.time()
         # get movie details and the pivot matrix index
         title, genres = get_title(title, df)
+
+        if not title:
+            return pd.DataFrame()
+        
         idx = new_indices[title]
 
         # compute the knn distance and index
@@ -130,7 +134,7 @@ def knn_get_rec(title, rec=10, verbose=True):
         ret_df["knn_distance"] = dists
 
         if len( list(ret_df["title"])) < 1:
-            return give_rec(title, rec=rec)
+            return pd.DataFrame()
 
         end = time.time()
         if title and verbose:
@@ -141,7 +145,7 @@ def knn_get_rec(title, rec=10, verbose=True):
 
     except Exception as _:
         print("⚠ Oops! Something went wrong!", _)
-        return  give_rec(title, rec=rec)
+        return  pd.DataFrame()
 
 
 def unpersonalized_recomm(count=10):
