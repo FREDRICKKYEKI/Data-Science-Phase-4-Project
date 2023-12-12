@@ -138,7 +138,7 @@ I wish to acknowledge https://github.com/krishnaik06 for the guidance and suppor
 ## Folder Structure :open_file_folder:
 
 ```
-```
+
 📦 this-repo
 ├─ .gitignore
 ├─ AUTHOR
