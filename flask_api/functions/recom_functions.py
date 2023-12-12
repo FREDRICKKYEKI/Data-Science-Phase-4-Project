@@ -145,7 +145,7 @@ def knn_get_rec(title, rec=10, verbose=True):
 
     except Exception as _:
         print("⚠ Oops! Something went wrong!", _)
-        return  pd.DataFrame()
+        return  ret_df
 
 
 def unpersonalized_recomm(count=10):
