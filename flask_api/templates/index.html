@@ -90,6 +90,9 @@
     </h1>
     <p>
       Embark on a journey of movie exploration using our machine learning model.
+    </p>
+    <h3>How to use:</h3>
+    <p>
       Simply search for your favorite film, and unveil a curated list of
       similar, captivating movies that await your discovery.
     </p>
@@ -109,20 +112,34 @@
       {% if movie_json %} {% if home %}
       <p>Here are some movies you might like:</p>
       {% else %}
-      <h2 class="mt-2">Results</h2>
+      <h4 class="mt-2">Results</h2>
       {% endif %} {% if title %}
-      <i style="color: gray">showing results for <b>{{title}}</b></i>
+      <i style="color: gray"
+        >Showing results for movies similar to: <b>{{title}}</b></i
+      >
+      <p style="color: gray"><strong>Genres: </strong>{{genres}}</p>
       {% endif %}
       <ul style="margin-bottom: 6rem" class="d-flex flex-wrap">
         {% for movie in movies %}
         <li class="m-3" style="list-style: none">
           <article style="max-width: 250px; height: 400px" class="card">
-            <img class="movie__img card-img-top" />
+            <img
+              style="
+                background-color: #ccc;
+                object-fit: cover;
+                min-height: 150px;
+                /* height: 100%; */
+                min-width: 250px;
+              "
+              class="movie__img card-img-top"
+            />
             <div class="movie__title card-body">
               <h5 class="card-title"></h5>
-              <p><strong>Genres: </strong><span class="genre"></span></p>
-              <strong>Description:</strong>
-              <p class="card-text"></p>
+              <p>
+                <strong>Genres: </strong><span class="genre">Loading...</span>
+              </p>
+              <strong>Description: </strong>
+              <p class="card-text">Loading...</p>
             </div>
           </article>
         </li>

@@ -49,19 +49,19 @@ def redirect_home():
     """
     try:
         title = request.args.get("movie")
-        print(title)
 
         if not title:
             return redirect("/"), 302
 
         movies_df: pd.DataFrame = knn_get_rec(title, rec=20)
 
-        title, _ = get_title(title)
+        title, genres = get_title(title)
+        print(genres)
 
         movies = list(movies_df["title"])
 
         return render_template("index.html", title=title if title else "",
-                               movies=movies,
+                               movies=movies, genres=", ".join(genres.split("|")),
                                home=False, api_key=app.config["API_ACCESS_TOK"],
                                movie_json=movies_df.to_json(orient="records"))
     except:

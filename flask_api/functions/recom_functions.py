@@ -4,6 +4,8 @@ Contains movie recommendation functions
 import pandas as pd
 import pickle as pkl
 import random
+import time
+import joblib
 
 # random.seed(555)
 
@@ -28,6 +30,8 @@ with open("functions/pickles/recom_model", "rb") as f:
 
 new_indices = {value: index for index, value in enumerate(knnrc_df.index)}
 
+with open("functions/pickles/sig", "rb") as f:
+    sig = pkl.load(f)
 
 movies_df = data["movies"]
 
@@ -62,15 +66,13 @@ def get_title(text, df=df):
 def give_rec(title, rec=10):
     """Get the index corresponding to title content based"""
     try:
-        with open("functions/pickles/sig", "rb") as f:
-            sig = pkl.load(f)
+        start = time.time()
+
         # get title
         title, genres = get_title(title, merged_movies_links)
 
         # print the movie title matching the text
-        if title:
-            print(f"[CONTENT-BASED] Recommendation for {title}")
-            print("Genres: ", genres)
+
 
         idx = indices[title]
 
@@ -85,6 +87,9 @@ def give_rec(title, rec=10):
         # Movie indices
         movie_indices = [i[0] for i in sig_scores]
 
+        if title:
+            print(f"[CONTENT-BASED] Recommendation for {title} -- time:", time.time()-start, "seconds")
+            print("Genres: ", genres)
         # Top 10 most similar movies
         return merged_movies_links.iloc[movie_indices].drop_duplicates()
     except Exception as _:
@@ -100,16 +105,14 @@ def knn_get_rec(title, rec=10, verbose=True):
     # initiate an empty list to fill the knn distances
     dists = []
     try:
+        start = time.time()
         # get movie details and the pivot matrix index
         title, genres = get_title(title, df)
         idx = new_indices[title]
 
         # compute the knn distance and index
-        distances, knn_indices = model_knn.kneighbors(knnrc_df.iloc[idx,:].values.reshape(1, -1), n_neighbors = rec)
-
-        if title and verbose:
-            print(f'[KNN] Recommendations for {title}:')
-            print(f"Genres: {', '.join(genres.split('|'))}")
+        distances, knn_indices = model_knn.kneighbors(knnrc_df.iloc[idx,:].values.reshape(1, -1),
+                                                      n_neighbors = rec)
 
         for i in range(0, len(distances.flatten())):
             if i == 0:
@@ -129,6 +132,11 @@ def knn_get_rec(title, rec=10, verbose=True):
         if len( list(ret_df["title"])) < 1:
             return give_rec(title, rec=rec)
 
+        end = time.time()
+        if title and verbose:
+            print(f'[KNN] Recommendations for {title} -- time:', end-start, "seconds")
+            print(f"Genres: {', '.join(genres.split('|'))}")
+
         return ret_df.sample(frac=1)
 
     except Exception as _:
@@ -138,18 +146,20 @@ def knn_get_rec(title, rec=10, verbose=True):
 
 def unpersonalized_recomm(count=10):
     """Returns a randomlist of highly ranked movies movies"""
-    unique_genres = list(set(df['genres'].str.split('|', expand=True).stack()))
+    start = time.time()
+    unique_genres = list(set(data["movies"]['genres'].str.split('|', expand=True).stack()))
 
     recomms = pd.DataFrame()
-    for genre in unique_genres:
+    for genre in unique_genres[:8]:
         # select top 5 of each genre
+        if genre == "(no genres listed)":
+            genre = unique_genres[random.randint(6, len(unique_genres)-1)]
         mask = df["genres"].str.contains(genre, regex=False, case=False)
         top_5 = df[mask].sort_values(by="rating", ascending=False).head()
-        top_5["year_of_release"] = top_5["title"].map(lambda x: x[-5:].strip(")"))
         recomms = pd.concat([recomms, top_5])
-
+    end = time.time()
     # return shuffled
-    print("[UNPERSONALIZED]")
+    print("[UNPERSONALIZED] -- time:", end-start, "seconds")
     return recomms.sample(frac=1).drop_duplicates().head(count)
 
 def top_ten_highly_rated(uid, rec=10):
